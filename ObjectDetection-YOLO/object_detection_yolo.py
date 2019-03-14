@@ -3,6 +3,7 @@
 # Usage example:  python3 object_detection_yolo.py --video=run.mp4
 #                 python3 object_detection_yolo.py --image=bird.jpg
 
+from timeit import default_timer as timer
 import cv2 as cv
 import argparse
 import sys
@@ -139,13 +140,17 @@ while cv.waitKey(1) < 0:
         break
 
     # Create a 4D blob from a frame.
-    blob = cv.dnn.blobFromImage(frame, 1/255, (inpWidth, inpHeight), [0,0,0], 1, crop=False)
+    start = timer()
+    for x in range(100):
+        blob = cv.dnn.blobFromImage(frame, 1/255, (inpWidth, inpHeight), [0,0,0], 1, crop=False)
 
-    # Sets the input to the network
-    net.setInput(blob)
+        # Sets the input to the network
+        net.setInput(blob)
 
-    # Runs the forward pass to get output of the output layers
-    outs = net.forward(getOutputsNames(net))
+        # Runs the forward pass to get output of the output layers
+        outs = net.forward(getOutputsNames(net))
+    end = timer()
+    print("decode time:", end - start)
 
     # Remove the bounding boxes with low confidence
     postprocess(frame, outs)
